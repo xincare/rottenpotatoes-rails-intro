@@ -5,10 +5,6 @@ class Movie < ActiveRecord::Base
     end
     
     def self.with_ratings (ratings)
-        #joins(:ratings).where("ratings.rating == ?", all_ratings)
-        where("rating")
-        
-        #where(!(all_ratings & ratings).empty?)
-        #where(ratings.include? all_ratings)
+        where("rating IN (?)",ratings)
     end
 end

@@ -16,7 +16,7 @@ class MoviesController < ApplicationController
     @movies = Movie.all.order(params["sort"])
     if params["ratings"]
       params[:ratings].each {|rating, bool| @user_ratings << rating}
-      @movies = Movie.where("rating IN (?)",@user_ratings)
+      @movies = Movie.with_ratings(@user_ratings)
     elsif params["sort"] == 'title'
       @title = 'hilite'
     elsif params["sort"] == 'release_date'
