@@ -14,8 +14,28 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.all_ratings
     @user_ratings = []
     @movies = Movie.all.order(params["sort"])
-    if params["ratings"]
-      params[:ratings].each {|rating, bool| @user_ratings << rating}
+    
+    @sort = params[:sort] || session[:sort]
+    @ratings = params[:ratings]  || session[:ratings] || @all_ratings
+    @movies = Movie.where( { rating: @ratings } ).order(params["sort"])
+    session[:sort] = @sort
+    session[:ratings] = @ratings
+
+    if params[:sort] != session[:sort] or params[:ratings] != session[:ratings]
+      flash.keep
+      redirect_to movies_path sort: @sort, ratings: @ratings
+    end
+    
+    if params["ratings"] and params["sort"]
+      params[:ratings].each {|rating, checked| @user_ratings << rating}
+      @movies = Movie.with_ratings(@user_ratings).order(params["sort"])
+      if params["sort"] == 'title'
+        @title = 'hilite'
+      elsif params["sort"] == 'release_date'
+        @release_date = 'hilite'
+      end
+    elsif params["ratings"]
+      params[:ratings].each {|rating, checked| @user_ratings << rating}
       @movies = Movie.with_ratings(@user_ratings)
     elsif params["sort"] == 'title'
       @title = 'hilite'
